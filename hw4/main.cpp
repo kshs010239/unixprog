@@ -15,6 +15,7 @@ typedef unsigned int uint;
 typedef unsigned char uchar;
 
 uchar BC[] = "\xFF\xFF\xFF\xFF\xFF\xFF";
+int hsz = sizeof(struct ethhdr);
 
 struct IFA{
 	char name[100] = {0};
@@ -47,6 +48,11 @@ uint get_ip(struct sockaddr* ifa_addr)
 	return (uint)((struct sockaddr_in*)ifa_addr)->sin_addr.s_addr;
 }
 
+void print_mac(uchar mac[])
+{
+	for(int i = 0; i < 6; i++)
+		printf("%02x%s", mac[i], i == 5 ? "": ":");
+}
 
 Map ifa_map;
 void fetch_addr()
@@ -82,9 +88,8 @@ void fetch_addr()
 		printf("%d - %s\t %x %x ", it->index, it->name, it->ip, it->mask);
 		fflush(stdin);
 		//write(1, "\0\0\0\0\0\0", 6);
+		print_mac(it->mac);
 		fflush(stdin);
-		for(int i = 0; i < 6; i++)
-			printf("%02x%s", it->mac[i], i == 5 ? "": ":");
 		puts("");
 	}
 }
@@ -110,7 +115,11 @@ void start_recv(int fd)
 			int c;
 			if(c = read(fd, buf, 1024))
 			{
-				write(1, buf, c);
+				struct ethhdr *eth = (struct ethhdr *)buf;
+				printf("<");
+				print_mac(eth->h_source);
+				printf("> ");
+				write(1, buf + hsz, c - hsz);
 				fflush(stdout);
 			}
 		}
@@ -136,7 +145,6 @@ int main()
 	{
 		printf(">>> ");
 		static char buf[10250];
-		int hsz = sizeof(struct ethhdr);
 		fgets(buf + hsz, 10240, stdin);
 		int sz = hsz + strlen(buf + hsz);
 		for(IFA* it = ifa_map.begin(); it != ifa_map.end(); ++it)
