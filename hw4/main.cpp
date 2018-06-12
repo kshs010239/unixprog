@@ -119,6 +119,7 @@ void start_recv(int fd)
 				printf("<");
 				print_mac(eth->h_source);
 				printf("> ");
+				fflush(stdout);
 				write(1, buf + hsz, c - hsz);
 				fflush(stdout);
 			}
@@ -145,8 +146,10 @@ int main()
 	{
 		printf(">>> ");
 		static char buf[10250];
-		fgets(buf + hsz, 10240, stdin);
-		int sz = hsz + strlen(buf + hsz);
+		sprintf(buf + hsz, "[%s]: ", username);
+		int husz = hsz + strlen(buf + hsz);
+		fgets(buf + husz, 10240, stdin);
+		int sz = husz + strlen(buf + husz);
 		for(IFA* it = ifa_map.begin(); it != ifa_map.end(); ++it)
 		{
 			printf("send to %d\n", it->index);
