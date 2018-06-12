@@ -98,9 +98,6 @@ void add_header(char buf[], uchar s[])
 {
 	struct ethhdr *eth = (struct ethhdr *)buf;
 	memcpy(eth->h_source, s, 6);
-	for(int i = 0; i < 6; i++)
-		printf("%x ", s[i]);
-	puts("");
 	memcpy(eth->h_dest, BC, 6);
 	eth->h_proto = htons(0x0801);
 }
@@ -152,7 +149,6 @@ int main()
 		int sz = husz + strlen(buf + husz);
 		for(IFA* it = ifa_map.begin(); it != ifa_map.end(); ++it)
 		{
-			printf("send to %d\n", it->index);
 			add_header(buf, it->mac);
 			sadr_ll.sll_ifindex = it->index; 
 			memcpy(sadr_ll.sll_addr, it->mac, 6);
