@@ -113,7 +113,7 @@ void start_recv(int fd)
 		{
 			static char buf[1025];
 			int c;
-			if((c = read(fd, buf, 1024)) <= 0)
+			if((c = read(fd, buf, 1024)) > 0)
 			{
 				struct ethhdr *eth = (struct ethhdr *)buf;
 				printf("<");
